@@ -57,7 +57,7 @@ test("Attempting Wordle", async (t: TestController) => {
     await t.click(gameModalCloseIcon);
   }
 
-  let attempt = 0;
+  let attempt: string | number = "X";
   let shareString = "";
 
   for (let i = 0; i < 6; i++) {
@@ -72,8 +72,6 @@ test("Attempting Wordle", async (t: TestController) => {
       i--;
       continue;
     }
-    // increment attempt only if word is accepted
-    attempt++;
     shareString +=
       result.reduce(
         (s: string, { evaluation }) =>
@@ -86,6 +84,7 @@ test("Attempting Wordle", async (t: TestController) => {
         ""
       ) + "\n";
     if (result.every(({ evaluation }) => evaluation === "correct")) {
+      attempt = i + 1;
       break;
     }
     wordList = filterWordList(wordList, result);
