@@ -5,7 +5,9 @@ import {
   enterWord,
   evaluateRow,
   filterWordList,
+  GAME_ID,
   getRandomWord,
+  getSelector,
   revertWord,
 } from "./util";
 import words from "./final-list.json";
@@ -44,16 +46,14 @@ const getDayOffset = (today: Date) => {
 fixture`Solving Wordle`.page`https://www.nytimes.com/games/wordle/index.html`;
 
 test("Attempting Wordle", async (t: TestController) => {
-  const gameApp = Selector("game-app").shadowRoot();
-  const gameThemeManager = gameApp.child("game-theme-manager");
+  const gameApp = Selector(GAME_ID);
 
-  const gameModalOpen = gameThemeManager
-    .find("game-modal")
-    .withAttribute("open");
-
+  const gameModalOpen = gameApp.find(getSelector("Modal-module_content"));
   // Close game instructions modal if shown at start of game
   if (await gameModalOpen.exists) {
-    const gameModalCloseIcon = gameModalOpen.shadowRoot().find(".close-icon");
+    const gameModalCloseIcon = gameModalOpen.find(
+      getSelector("Modal-module_closeIcon")
+    );
     await t.click(gameModalCloseIcon);
   }
 
@@ -67,7 +67,11 @@ test("Attempting Wordle", async (t: TestController) => {
     await enterWord(t, word);
     const result = await evaluateRow(i);
     // word not in wordle list. revert and try again.
-    if (result.every(({ evaluation }) => !evaluation)) {
+    if (
+      result.every(
+        ({ evaluation }) => evaluation === "tbd" || evaluation === "empty"
+      )
+    ) {
       await revertWord(t);
       i--;
       continue;

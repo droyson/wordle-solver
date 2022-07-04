@@ -9,6 +9,6 @@
     "typescript": "^4.5.5"
   },
   "scripts": {
-    "solve": "testcafe 'browserstack:chrome@98.0:OS X Monterey' index.ts --compiler-options typescript.configPath='./tsconfig.json'"
+    "solve": "testcafe 'browserstack:chrome@98.0:OS X Monterey' index.ts --compiler-options typescript.configPath='./tsconfig.json' --skip-js-errors"
   }
 }

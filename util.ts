@@ -4,11 +4,20 @@ const ENTER = "↵";
 
 const DELETE = "←";
 
-export const clickLetter = async (t: TestController, letter: string) => {
-  const gameApp = Selector("game-app").shadowRoot();
-  const gameKeyboard = gameApp.find("game-keyboard").shadowRoot();
+export const GAME_ID = "#wordle-app-game";
 
-  const key = gameKeyboard.find(`#keyboard button[data-key="${letter}"]`);
+export const getSelector = (
+  value: string,
+  element: string = "div",
+  attribute: string = "class"
+) => {
+  return `${element}[${attribute}*='${value}']`;
+};
+
+export const clickLetter = async (t: TestController, letter: string) => {
+  const gameApp = Selector(GAME_ID);
+  const gameKeyboard = gameApp.find(getSelector("Keyboard-module_keyboard"));
+  const key = gameKeyboard.find(`button[data-key="${letter}"]`);
 
   await t.click(key);
 };
@@ -28,25 +37,25 @@ export const revertWord = async (t: TestController) => {
   }
 };
 
-type Evaluation = "correct" | "absent" | "present";
+type Evaluation = "correct" | "absent" | "present" | "tbd" | "empty";
 
 type Reveal = {
   letter: string | null;
-  evaluation: Evaluation | null;
+  evaluation: Evaluation;
 };
 
 export const evaluateRow = async (rowIndex: number): Promise<Reveal[]> => {
-  const gameApp = Selector("game-app").shadowRoot();
+  const gameApp = Selector(GAME_ID);
 
-  const gameRow = gameApp.find("game-row").nth(rowIndex).shadowRoot();
-  const gameTitles = gameRow.find("game-tile");
+  const gameRow = gameApp.find(getSelector("Row-module_row")).nth(rowIndex);
+  const gameTiles = gameRow.find(getSelector("Tile-module_tile"));
   const rowReveal: Reveal[] = [];
   for (let i = 0; i < 5; i++) {
-    const gameTile = gameTitles.nth(i);
-    const letter = await gameTile.getAttribute("letter");
+    const gameTile = gameTiles.nth(i);
+    const letter = await gameTile.textContent;
     const evaluation = (await gameTile.getAttribute(
-      "evaluation"
-    )) as Evaluation | null;
+      "data-state"
+    )) as Evaluation;
     rowReveal.push({
       letter,
       evaluation,
